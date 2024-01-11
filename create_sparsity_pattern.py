@@ -22,6 +22,8 @@ def stiff_mat(topol, coord):
     # Assigning topology and coordinates to local variables
     T = topol
     C = coord
+    
+    f = np.zeros(n)
 
     n = len(coord)
     H = sp.csr_matrix((n,n))
@@ -39,6 +41,12 @@ def stiff_mat(topol, coord):
         delta = 0.5 * np.linalg.det([[1, x[i], y[i]], 
                                      [1, x[j], y[j]], 
                                      [1, x[m], y[m]]])
+        
+        # Distribute the area to the nodes, each time the node k appears
+        # the value delta/3 is summed to the nodal area of node i
+        f[i] += delta / 3
+        f[j] += delta / 3
+        f[m] += delta / 3
 
         # Calculating coefficients a, b, c for each node of the element
         a = [x[j] * y[m] - x[m] * y[j], 
@@ -47,6 +55,7 @@ def stiff_mat(topol, coord):
         b = [y[j] - y[m], y[m] - y[i], y[i] - y[j]]
         c = [x[m] - x[j], x[i] - x[m], x[j] - x[i]]
 
+        
         # Initializing matrices b_mat and c_mat for basis functions
         b_mat = np.zeros((3, 3))
         c_mat = np.zeros((3, 3))
@@ -75,19 +84,45 @@ def stiff_mat(topol, coord):
                 M[row, col] += Mloc[i, j]
 
     # Returning the global stiffness matrix H and the last computed area delta
-    return H, M
+    return H, M, f
 
 
-H , M = stiff_mat(topol, coord)
+H , M , _ = stiff_mat(topol, coord)
 
+def enforce_dirichlet_conditions(H, bound):
+    nBound = bound.shape[0]
 
+    n = H.shape[0]
+    # Initialize the RHS as a zero vector
+    rhs = np.zeros(n)
+
+    # Step 1: Set all the Dirichlet rows in H to zero
+    for i in range(nBound):
+        H[bound[i, 0], :] = 0
+
+    # Step 2: Adjust the RHS for the Dirichlet conditions
+    for i in range(nBound):
+        # Update the right-hand side for the Dirichlet boundary
+        rhs -= H[:, bound[i, 0]] * bound[i, 1]
+        H[:, bound[i, 0]] = 0
+        rhs[bound[i, 0]] = bound[i, 1]
+
+    # Step 3: Set diagonal term to 1 for Dirichlet nodes in H
+    for i in range(nBound):
+        H[bound[i, 0], bound[i, 0]] = 1
+
+    return H, rhs
+H1 , _ = enforce_dirichlet_conditions(H,bound)
+
+plt.figure(figsize=(10, 10))  # Create a new figure with a specified size
 plt.spy(H, markersize=1)  # Plot the sparsity pattern of H
 plt.title('Sparsity Pattern')
 plt.xlabel('Column Index')
 plt.ylabel('Row Index')
 plt.show()
 
-plt.spy(M, markersize=1)  # Plot the sparsity pattern of H
+plt.figure(figsize=(10, 10))  # Create a new figure with a specified size
+plt.spy(H1, markersize=1)  # Plot the sparsity pattern of H
 plt.title('Sparsity Pattern')
 plt.xlabel('Column Index')
 plt.ylabel('Row Index')
