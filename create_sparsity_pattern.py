@@ -187,20 +187,46 @@ epsilon = compute_error(U[-1],coord,ref_grid,f)
 
 print(epsilon)
 
+# temperature on the bounfary gammaN at different times
+
+node_index_trace = trace[:,0]
+node_index_trace = node_index_trace.astype(int)
+arc_length = trace[:, 1]
+times_trace = [124,249,374,499]
+trace_solutions=[]
+
+for time in times_trace:
+    sol = U[time]
+    trace_u=[]
+    for index in node_index_trace:
+        trace_u.append(sol[index - 1])
+    trace_solutions.append(trace_u)
+
+plt.plot(arc_length, trace_solutions[0])
+plt.plot(arc_length, trace_solutions[1])
+plt.plot(arc_length, trace_solutions[2])
+plt.plot(arc_length, trace_solutions[3])
+
+# Add titles and labels
+plt.title('Node Values Over Time')
+plt.xlabel('Time')
+plt.ylabel('u')
+plt.show()
+
 times = np.arange(0, 10.02, 0.02)
 track_solutions = []
 for i in track:
     
-    node_index = i
+    node_index = i - 1
     sol = []
     for solution in U:
         sol.append(solution[node_index])
         # Create the plot
     track_solutions.append(sol)    
 
-plt.plot(times, track_solutions[0], marker='o', linestyle='-')
-plt.plot(times, track_solutions[1], marker='o', linestyle='-')
-plt.plot(times, track_solutions[2], marker='o', linestyle='-')
+plt.plot(times, track_solutions[0])
+plt.plot(times, track_solutions[1])
+plt.plot(times, track_solutions[2])
 # Add titles and labels
 plt.title('Node Values Over Time')
 plt.xlabel('Time')
