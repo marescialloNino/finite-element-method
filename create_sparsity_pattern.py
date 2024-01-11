@@ -15,11 +15,18 @@ bound = pd.read_csv(bound_file, sep="\s+", header=None).to_numpy()
 
 n = len(coord)
 H = sp.csr_matrix((n,n))
+M = sp.csr_matrix((n,n))
 
-def stiff_mat(topol, coord, H):
+def stiff_mat(topol, coord):
+
     # Assigning topology and coordinates to local variables
     T = topol
     C = coord
+
+    n = len(coord)
+    H = sp.csr_matrix((n,n))
+    M = sp.csr_matrix((n,n))
+    
     x = C[:, 0]  # Extracting x-coordinates
     y = C[:, 1]  # Extracting y-coordinates
 
@@ -43,6 +50,9 @@ def stiff_mat(topol, coord, H):
         # Initializing matrices b_mat and c_mat for basis functions
         b_mat = np.zeros((3, 3))
         c_mat = np.zeros((3, 3))
+        m_mat = np.ones((3, 3))
+        np.fill_diagonal(m_mat, 2)  # Set diagonal elements to 2
+
 
         # Calculating the entries of the b_mat and c_mat matrices
         for i in range(3):
@@ -52,22 +62,32 @@ def stiff_mat(topol, coord, H):
 
         # Computing the local stiffness matrix Hloc
         Hloc = (1 / (4 * delta)) * (b_mat + c_mat)
+        # Computing the local mass matrix Mloc
+        Mloc = (delta / 12) * m_mat
 
-        # Assembling the local stiffness matrix into the global stiffness matrix H
+        # Assembling the local stiffness and mass matrix into the global stiffness
+        # matrix H and global mass matrix M
         for i in range(3):
             row = T[k, i] - 1  # Again, adjusting for 0-based indexing
             for j in range(3):
                 col = T[k, j] - 1
                 H[row, col] += Hloc[i, j]
+                M[row, col] += Mloc[i, j]
 
     # Returning the global stiffness matrix H and the last computed area delta
-    return H, delta
+    return H, M
 
 
-H , _ = stiff_mat(topol, coord, H)
+H , M = stiff_mat(topol, coord)
 
 
 plt.spy(H, markersize=1)  # Plot the sparsity pattern of H
+plt.title('Sparsity Pattern')
+plt.xlabel('Column Index')
+plt.ylabel('Row Index')
+plt.show()
+
+plt.spy(M, markersize=1)  # Plot the sparsity pattern of H
 plt.title('Sparsity Pattern')
 plt.xlabel('Column Index')
 plt.ylabel('Row Index')
