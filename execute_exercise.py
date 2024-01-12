@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import ilupp
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.tri as mtri
-from create_matrixes import stiff_and_mass_matrixes, solve_system, compute_error
+from create_matrixes import stiff_and_mass_matrixes, solve_system, compute_error, enforce_dirichlet_conditions_stationary
 import time
 
 # global variables
@@ -103,6 +103,19 @@ for mesh in range(3):
     print('solution for P1 at tmax: ',track_solutions[0][-1])
     print('solution for P2 at tmax: ',track_solutions[1][-1])
     print('solution for P3 at tmax: ',track_solutions[2][-1])
+
+    # Stationary solution du/dt = 0 ==> Linear system becomes Hu = 0
+
+    H_stationary, rhs_stationary = enforce_dirichlet_conditions_stationary(H,bound)      
+    Mcho = ilupp.IChol0Preconditioner(H_stationary)
+    
+    u0 = np.zeros(H_stationary.shape[0])
+    u,flag=sp.linalg.cg(H_stationary,rhs_stationary,u0,tol=1e-05,maxiter=100,M=M)
+
+
+
+
+
 
     # plot the solutions at final time
     fig = plt.figure()

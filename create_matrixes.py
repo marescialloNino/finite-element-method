@@ -108,6 +108,24 @@ def enforce_dirichlet_conditions(K1,K2, bound, u0, current_time):
     # return updated matrix K2 and rhs
     return H.tocsr(), rhs
 
+def enforce_dirichlet_conditions_stationary(H, bound):
+    nBound = bound.shape[0]
+    H_mod = H.copy().tolil()  # Convert to lil_matrix for efficient modifications
+    rhs = np.zeros(H.shape[0])  # Initialize the RHS as zero vector
+
+    for i in range(nBound):
+        node_index = int(bound[i, 0])
+        boundary_value = bound[i, 1]  # Final boundary condition value
+        # Set the Dirichlet rows and columns in H to zero
+        H_mod[node_index, :] = 0
+        H_mod[:, node_index] = 0
+        # Set the diagonal term to 1 for Dirichlet nodes in H
+        H_mod[node_index, node_index] = 1
+        # Set rhs to the final boundary condition value
+        rhs[node_index] = boundary_value
+
+    return H_mod.tocsr(), rhs
+
 def solve_system(K1, K2, bound, u0, tmax, deltat):
     # takes K1,K2 systemmatrixes and u0 the initial solution
     t = 0
