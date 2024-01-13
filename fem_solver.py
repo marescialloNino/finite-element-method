@@ -10,8 +10,8 @@ def stiff_and_mass_matrixes(topol, coord):
     C = coord
     
     n = coord.shape[0]
-    H = sp.csr_matrix((n,n))
-    M = sp.csr_matrix((n,n))
+    H = sp.csr_matrix((n,n)).tolil()
+    M = sp.csr_matrix((n,n)).tolil()
     f = np.zeros(n)
     
     x = C[:, 0]  # Extracting x-coordinates
@@ -70,7 +70,7 @@ def stiff_and_mass_matrixes(topol, coord):
                 M[row, col] += Mloc[i, j]
 
     # Returning the global stiffness matrix H and the last computed area delta
-    return H, M, f
+    return H.tocsr(), M.tocsr(), f
 
 
 
@@ -106,27 +106,6 @@ def enforce_dirichlet_conditions(K1,K2, bound, u0, current_time):
     # return updated matrix K2 and rhs
     return H.tocsr(), rhs
 
-def enforce_dirichlet_conditions_stationary(H, bound):
-    nBound = bound.shape[0]
-    H_mod = H.copy().tolil()  # Convert to lil_matrix for efficient modifications
-    rhs = np.zeros(H.shape[0])  # Initialize the RHS as zero vector
-    
-    for i in range(nBound):
-        node_index = int(bound[i, 0])
-        boundary_value = bound[i, 1]  # Final boundary condition value
-        # Set the Dirichlet rows in H to zero
-        H_mod[node_index, :] = 0
-            
-        column_to_subtract = H[:, node_index].toarray().flatten() * boundary_value
-        rhs -= column_to_subtract
-
-        H_mod[:, node_index] = 0
-        # Set the diagonal term to 1 for Dirichlet nodes in H
-        H_mod[node_index, node_index] = 1
-
-        rhs[node_index] = boundary_value
-
-    return H_mod.tocsr(), rhs
 
 def solve_system(K1, K2, bound, u0, tmax, deltat):
     # takes K1,K2 systemmatrixes and u0 the initial solution

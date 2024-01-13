@@ -92,8 +92,30 @@ for mesh in range(5):
     plt.close() 
 
     # Values of tracking points at final time
-    print('solution for P1 at tmax: ',track_solutions[0][-1])
-    print('solution for P2 at tmax: ',track_solutions[1][-1])
-    print('solution for P3 at tmax: ',track_solutions[2][-1])
+    print('solution for P1 at 2.5: ',track_solutions[0][125])
+    print('error for P1 at 2.5: ',track_solutions[0][125] - 0.2434390)
+    print('solution for P2 at 2.5: ',track_solutions[1][125])
+    print('error for P2 at 2.5: ',track_solutions[1][125] - 0.0772287)
+    print('solution for P3 at 2.5: ',track_solutions[2][125])
+    print('error for P3 at 2.5: ',track_solutions[2][125] - 0.0183037)
+    print('solution for P1 at 5: ',track_solutions[0][250])
+    print('error for P1 at 5: ',track_solutions[0][250] - 0.6046775)
+    print('solution for P2 at 5: ',track_solutions[1][250])
+    print('error for P2 at 5: ',track_solutions[1][250] - 0.2751718)
+    print('solution for P3 at 5: ',track_solutions[2][250])
+    print('error for P3 at 5: ',track_solutions[2][250] - 0.0928241)
+    print('solution for P1 at 7.5: ',track_solutions[0][375])
+    print('error for P1 at 7.5: ',track_solutions[0][375] - 0.7454968)
+    print('solution for P2 at 7.5: ',track_solutions[1][375])
+    print('error for P2 at 7.5: ',track_solutions[1][375] - 0.4328630)
+    print('solution for P3 at 7.5: ',track_solutions[2][375])
+    print('error for P3 at 7.5: ',track_solutions[2][375] - 0.1716526)
+    print('solution for P1 at tmax: ',track_solutions[0][500])
+    print('error for P1 at tmax: ',track_solutions[0][500] - 0.7751273)
+    print('solution for P2 at tmax: ',track_solutions[1][500])
+    print('error for P2 at tmax: ',track_solutions[1][500] - 0.4805514)
+    print('solution for P3 at tmax: ',track_solutions[2][500])
+    print('error for P3 at tmax: ',track_solutions[2][500] - 0.2008722)
+
 
 

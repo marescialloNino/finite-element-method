@@ -69,10 +69,7 @@ for mesh in range(5):
     plt.savefig(f'./plots/stationary_solution_mesh{mesh}.png')
     plt.close() 
 
-    # Assuming topol and coord are numpy arrays
-    # topol - n x 3 array, where each row represents a triangle with node indices
-    # coord - m x 2 array, where each row represents x and y coordinates of a node
-
+    # calculate mesh size
     max_length = 0  # To keep track of the longest side
 
     for triangle in topol:  # [1,2,3]  -->   [coord[1],coord[2],coord[3]]
@@ -90,6 +87,8 @@ for mesh in range(5):
         max_length = max(max_length, max(side_lengths))
     mesh_size.append(max_length)
     print("Length of the longest side in the mesh:", max_length)
+
+
 
 # calculate r_k
 r=[0]
